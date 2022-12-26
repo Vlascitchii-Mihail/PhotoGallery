@@ -1,4 +1,4 @@
-package com.bignerdrunch.photogallery
+package com.bignerdrunch.photogallery.fragment
 
 import android.os.Bundle
 import android.util.Log
@@ -11,6 +11,7 @@ import androidx.lifecycle.Lifecycle
 import androidx.lifecycle.lifecycleScope
 import androidx.lifecycle.repeatOnLifecycle
 import androidx.recyclerview.widget.GridLayoutManager
+import com.bignerdrunch.photogallery.adapter.PhotoListAdapter
 import com.bignerdrunch.photogallery.databinding.FragmentPhotoGalleryBinding
 import com.bignerdrunch.photogallery.viewmodel.PhotoGalleryViewModel
 import kotlinx.coroutines.launch
@@ -44,8 +45,11 @@ class PhotoGalleryFragment : Fragment() {
 
         viewLifecycleOwner.lifecycleScope.launch {
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
+
+                //StateFlow listener
                 photoGalleryViewModel.galleryItems.collect { items ->
-                    Log.d(TAG, "Response received: $items")
+//                    Log.d(TAG, "Response received: $items")
+                    binding.photoGrid.adapter = PhotoListAdapter(items)
                 }
             }
         }
