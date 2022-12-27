@@ -3,7 +3,7 @@ package com.bignerdrunch.photogallery.viewmodel
 import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.bignerdrunch.photogallery.PhotoRepository
+import com.bignerdrunch.photogallery.repository.PhotoRepository
 import com.bignerdrunch.photogallery.api.GalleryItem
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -22,12 +22,26 @@ class PhotoGalleryViewModel: ViewModel() {
     init {
         viewModelScope.launch {
             try {
-                val items = photoRepository.fetchPhotos()
-                Log.d(TAG, "Item received $items")
+//                val items = photoRepository.fetchPhotos()
+//                Log.d(TAG, "Item received $items")
+
+                val items = photoRepository.searchPhotos("planets")
                 _galleryItems.value = items
             } catch (ex: Exception) {
                 Log.e(TAG, "Filed to fetch gallery items", ex)
             }
         }
     }
-}
+
+    fun setQuery(query: String) {
+        viewModelScope.launch { _galleryItems.value = fetchGalleryItems(query) }
+    }
+
+    private suspend fun fetchGalleryItems(query: String): List<GalleryItem> {
+        return if (query.isNotEmpty()) {
+            photoRepository.searchPhotos(query)
+        } else {
+            photoRepository.fetchPhotos()
+        }
+    }
+ }
