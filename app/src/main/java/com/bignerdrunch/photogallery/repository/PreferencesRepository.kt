@@ -14,8 +14,9 @@ import kotlinx.coroutines.flow.map
 class PreferencesRepository private constructor (private val dataStore: DataStore<Preferences>) {
 
     /**
-     * Return stored query
+     * Return stored string
      */
+    //dataStore.data - access to file's data
     val storedQuery: Flow<String> = dataStore.data.map{
         it[SEARCH_QUERY_KEY] ?: ""
 
@@ -23,7 +24,7 @@ class PreferencesRepository private constructor (private val dataStore: DataStor
     }.distinctUntilChanged()
 
     /**
-     * Set a new string
+     * Set a new string in a file
      */
     suspend fun setStoredQuery(query: String) {
         dataStore.edit {
@@ -32,6 +33,8 @@ class PreferencesRepository private constructor (private val dataStore: DataStor
     }
 
     companion object {
+
+        //Get a key for a String preference
         private val SEARCH_QUERY_KEY = stringPreferencesKey("search_query")
         private var INSTANCE: PreferencesRepository? = null
 
