@@ -32,10 +32,24 @@ class PreferencesRepository private constructor (private val dataStore: DataStor
         }
     }
 
+    val lastResultId: Flow<String> = dataStore.data.map {
+        it[PREF_LAST_RESULT_ID] ?: ""
+    }.distinctUntilChanged()
+
+    /**
+     * write the last photo's id in the file
+     */
+    suspend fun setLastResultId(lastResultId: String) {
+        dataStore.edit {
+            it[PREF_LAST_RESULT_ID] = lastResultId
+        }
+    }
+
     companion object {
 
         //Get a key for a String preference
         private val SEARCH_QUERY_KEY = stringPreferencesKey("search_query")
+        private val PREF_LAST_RESULT_ID = stringPreferencesKey("lastResultId")
         private var INSTANCE: PreferencesRepository? = null
 
         fun initialize(context: Context) {
