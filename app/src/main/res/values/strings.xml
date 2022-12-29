@@ -8,4 +8,6 @@
     <string name="new_picture_ticker">This is the text ticker</string>
     <string name="new_picture_text">This is the text</string>
     <string name="new_picture_title">This is the title</string>
+    <string name="start_polling">Start polling</string>
+    <string name="stop_polling">End polling</string>
 </resources>
