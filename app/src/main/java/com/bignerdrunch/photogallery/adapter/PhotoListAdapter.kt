@@ -30,8 +30,14 @@ class PhotoViewHolder(private val binding: ListItemGalleryBinding)
 
     fun bind(galleryItem: GalleryItem) {
 
-        //Load the image referenced by data and set it on this ImageView.
+        /**
+         * Load the image referenced by data and set it on this ImageView using Coil library
+         */
         binding.itemImageView.load(galleryItem.url) {
+
+            /**
+             * filling the empty places
+             */
             placeholder(R.drawable.bill_up_close)
         }
     }

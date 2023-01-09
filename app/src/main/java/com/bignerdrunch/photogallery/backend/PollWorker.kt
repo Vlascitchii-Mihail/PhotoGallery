@@ -19,16 +19,24 @@ import okhttp3.internal.notify
 private const val TAG = "PollWorker"
 
 /**
- * Checking for new photo in background
+ * Provides to set background processes
  */
 class PollWorker(
     private val context: Context,
     workerParameters: WorkerParameters
 ) : CoroutineWorker(context, workerParameters) {
+
+    //perform background work
+    //is calling from background
     override suspend fun doWork(): Result {
 //        Log.i(TAG, "Work request triggered")
 
+        /**
+         * get the PreferencesRepository's object to get the last photo's ID
+         */
         val preferenceRepository = PreferencesRepository.get()
+
+        //for checking a new photos
         val photoRepository = PhotoRepository()
 
         val query = preferenceRepository.storedQuery.first()
@@ -39,7 +47,10 @@ class PollWorker(
             return  Result.success()
         }
 
-        //the final state of the operation
+        /**
+         * comparison the last photo's ID and ID from a new request
+         * catching the error if there is no connection
+         */
         return try {
             val items = photoRepository.searchPhotos(query)
 
@@ -50,7 +61,11 @@ class PollWorker(
                     Log.i(TAG, "Still have the same result")
                 } else {
                     Log.i(TAG, "Got a new result: $newResultId")
+
+                    //save a new photo's ID in file
                     preferenceRepository.setLastResultId(newResultId)
+
+                    //notify a user
                     notifyUser()
                 }
             }
@@ -62,8 +77,15 @@ class PollWorker(
         }
     }
 
+    /**
+     * create a notification and notify a user
+     */
     private fun notifyUser() {
         val intent = MainActivity.newIntent(context)
+
+        /**
+         * create a pending intent for launching thr app from NotificationBar
+         */
         val pendingIntent = PendingIntent.getActivity(
             context,
             0,
@@ -73,6 +95,9 @@ class PollWorker(
 
         val resources = context.resources
 
+        /**
+         * build a notification
+         */
         val notification = NotificationCompat
 
                 //set the notification channel
@@ -83,11 +108,13 @@ class PollWorker(
             .setContentText(resources.getString(R.string.new_picture_text))
             .setContentIntent(pendingIntent)
 
-                //The notification is automatically canceled when the user clicks it in the panel.
+                //The notification is automatically deleted from the appBar when
+            // the user clicks it the appBar's panel.
             .setAutoCancel(true)
             .build()
 
         //0 - notification ID
+        //notify - send the notification
         NotificationManagerCompat.from(context).notify(0, notification)
     }
 }

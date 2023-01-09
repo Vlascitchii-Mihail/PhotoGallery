@@ -33,6 +33,9 @@ class PhotoGalleryFragment : Fragment() {
 
     private var searchView: SearchView? = null
 
+    /**
+     * polling indicator
+     */
     private var pollingMenuItem: MenuItem? = null
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -41,13 +44,20 @@ class PhotoGalleryFragment : Fragment() {
         //fragment's registration for getting a callbacks from the Menu
         setHasOptionsMenu(true)
 
-//OneTimeWorkRequest
+        //create constraints
 //        val constraints = Constraints.Builder()
+
+        //required using wifi for using the WorkRequest
 //            .setRequiredNetworkType(NetworkType.UNMETERED)
 //            .build()
 //
 //        val workRequest = OneTimeWorkRequest
+
+        //create the OneTimeWorkRequest from our class
+        //subclass of the WorkRequest class
 //            .Builder(PollWorker::class.java)
+
+        //adding constraints
 //            .setConstraints(constraints)
 //            .build()
 //
@@ -75,11 +85,19 @@ class PhotoGalleryFragment : Fragment() {
         super.onViewCreated(view, savedInstanceState)
 
         viewLifecycleOwner.lifecycleScope.launch {
+
+            /**
+             * receive data from ViewModel
+             */
             viewLifecycleOwner.repeatOnLifecycle(Lifecycle.State.STARTED) {
 
                 //StateFlow listener
                 photoGalleryViewModel.uiState.collect { state ->
 //                    Log.d(TAG, "Response received: $items")
+
+                    /**
+                     * filling the RecyclerView and Adapter from PhotoGalleryUiState
+                     */
                     binding.photoGrid.adapter = PhotoListAdapter(state.images)
                     searchView?.setQuery(state.query, false)
                     updatePollingState(state.isPolling)
@@ -88,7 +106,7 @@ class PhotoGalleryFragment : Fragment() {
         }
     }
 
-    @Deprecated("Deprecated in Java")
+    //inflates the Menu
     override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
         super.onCreateOptionsMenu(menu, inflater)
         inflater.inflate(R.menu.fragment_photo_gallery, menu)
@@ -100,6 +118,9 @@ class PhotoGalleryFragment : Fragment() {
         searchView = searchItem.actionView as? SearchView
         pollingMenuItem = menu.findItem(R.id.menu_item_toggle_polling)
 
+        /**
+         * listening the SearchView
+         */
         searchView?.setOnQueryTextListener(object: SearchView.OnQueryTextListener {
 
             //Called when the user submits the query
@@ -111,21 +132,36 @@ class PhotoGalleryFragment : Fragment() {
                 return true
             }
 
-            //Called when a single character is changed
+            /**
+             * Called when a single character is changed
+             */
             override fun onQueryTextChange(newText: String?): Boolean {
                 Log.d(TAG, "QueryTextChange: $newText")
-                return  false
+
+                /**
+                 * false - event didn't happen for this listener, send event to next listener
+                 */
+                return false
             }
         })
     }
 
+    //This hook is called whenever an item in your options menu is selected.
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         return when (item.itemId) {
+
+            /**
+             * clear the query from the file
+             */
             R.id.menu_item_clear -> {
                 photoGalleryViewModel.setQuery("")
                 true
             }
             R.id.menu_item_toggle_polling -> {
+
+                /**
+                 * change the polling state
+                 */
                 photoGalleryViewModel.toggleIsPolling()
                 true
             }
@@ -140,15 +176,26 @@ class PhotoGalleryFragment : Fragment() {
 
         pollingMenuItem?.setTitle(toggleItemTitle)
 
+        /**
+         * create a new Worker
+         */
         if (isPolling) {
+
+            //create constraints
             val constraints = Constraints.Builder()
+
+                //required using wifi for using the WorkRequest
                 .setRequiredNetworkType(NetworkType.UNMETERED).build()
 
+            //create the PeriodicWorkRequest from our class
+            //subclass of the WorkRequest class
             val periodicRequest =
                 PeriodicWorkRequestBuilder<PollWorker>(15, TimeUnit.MINUTES)
+
+                    //required using wifi for using the WorkRequest
                     .setConstraints(constraints).build()
 
-            //add a new Worker
+            //planing a new Worker
             WorkManager.getInstance(requireContext()).enqueueUniquePeriodicWork(
 
                 //name
@@ -169,6 +216,12 @@ class PhotoGalleryFragment : Fragment() {
         super.onDestroy()
         _binding = null
         pollingMenuItem = null
+    }
+
+    override fun onDestroyOptionsMenu() {
+        super.onDestroyOptionsMenu()
+        pollingMenuItem = null
+        searchView = null
     }
 
 }

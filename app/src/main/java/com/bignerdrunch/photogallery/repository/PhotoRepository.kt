@@ -9,16 +9,19 @@ import retrofit2.converter.moshi.MoshiConverterFactory
 import retrofit2.create
 
 /**
- * The repository for the API request
+ * The repository for the API requests
  */
 class PhotoRepository {
     private val flickrApi: FlickrApi
 
     init {
 
+        /**
+         * add the client
+         */
         val okHttpClient = OkHttpClient.Builder()
 
-                //add the interceptor
+                //add the interceptor to any request
             .addInterceptor(PhotoInterceptor())
             .build()
 
@@ -26,10 +29,16 @@ class PhotoRepository {
          * Retrofit's exemplar for creating the instances of the FlickrApi interface
          */
         val retrofit: Retrofit = Retrofit.Builder()
+
+                //base URL for our request
             .baseUrl("https://api.flickr.com/")
+
+            /**
+             * add the converter which convert the API's response to String (indicated in the
+             */
             .addConverterFactory(MoshiConverterFactory.create())
 
-                //add a new client
+                //add a new client, adding URL template with any request
             .client(okHttpClient)
             .build()
 

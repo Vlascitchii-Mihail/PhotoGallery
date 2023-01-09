@@ -9,6 +9,9 @@ import kotlinx.coroutines.flow.distinctUntilChanged
 import kotlinx.coroutines.flow.map
 import kotlin.math.acos
 
+/**
+ * saves the data in the file system
+ */
 class PreferencesRepository private constructor (private val dataStore: DataStore<Preferences>) {
 
     /**
@@ -30,6 +33,9 @@ class PreferencesRepository private constructor (private val dataStore: DataStor
         }
     }
 
+    /**
+     * The last API's request result using for WorkManager
+     */
     val lastResultId: Flow<String> = dataStore.data.map {
         it[PREF_LAST_RESULT_ID] ?: ""
     }.distinctUntilChanged()
@@ -43,10 +49,16 @@ class PreferencesRepository private constructor (private val dataStore: DataStor
         }
     }
 
+    /**
+     * polling state indicator
+     */
     val isPolling: Flow<Boolean> = dataStore.data.map {
         it[PREF_IS_POLLING] ?: false
     }.distinctUntilChanged()
 
+    /**
+     * set the polling state indicator
+     */
     suspend fun setPolling(isPolling: Boolean) {
         dataStore.edit {
             it[PREF_IS_POLLING] = isPolling
@@ -58,21 +70,40 @@ class PreferencesRepository private constructor (private val dataStore: DataStor
         //Get a key for a String preference
         private val SEARCH_QUERY_KEY = stringPreferencesKey("search_query")
         private val PREF_LAST_RESULT_ID = stringPreferencesKey("lastResultId")
+
+        /**
+         * polling key in the file
+         */
         private val PREF_IS_POLLING = booleanPreferencesKey("osPolling")
+
+        /**
+         * PreferenceReposytory's variable
+         */
         private var INSTANCE: PreferencesRepository? = null
 
+        /**
+         * creates a new PreferencesRepository's object
+         */
         fun initialize(context: Context) {
             if (INSTANCE == null) {
+
+                //creates a new DataStore<Preferences> object
                 val dataStore = PreferenceDataStoreFactory.create{
 
-                    //create a file
+                    //create a file for PreferencesRepository's object
                     context.preferencesDataStoreFile("settings")
             }
 
+                /**
+                 * a new PreferencesRepository's object
+                 */
                 INSTANCE = PreferencesRepository(dataStore)
             }
         }
 
+        /**
+         * get the PreferencesRepository's object if it exists
+         */
         fun get(): PreferencesRepository {
             return INSTANCE ?: throw IllegalStateException(
                 "PreferencesRepository must be initialized"

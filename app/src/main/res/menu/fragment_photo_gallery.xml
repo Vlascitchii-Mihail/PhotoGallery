@@ -3,7 +3,7 @@
     xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto">
 
-<!--            app:actionViewClass="androidx.appcompat.widget.SearchView" - using searchView-->
+<!--app:actionViewClass="androidx.appcompat.widget.SearchView" - using searchView-->
     <item
         android:id="@+id/menu_item_search"
         android:title="@string/search"

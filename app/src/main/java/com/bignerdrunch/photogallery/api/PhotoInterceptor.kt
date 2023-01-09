@@ -20,7 +20,11 @@ class PhotoInterceptor: Interceptor {
 
         /**
          * Building the request's template
+         * nojsoncallback - without any parentheses
+         * extras - URL-address of each photo
+         * safesearch - censorship
          */
+        //originalRequest.url.newBuilder() - modify the initial URL
         val newUrl: HttpUrl = originalRequest.url.newBuilder()
             .addQueryParameter("api_key", API_KEY)
             .addQueryParameter("format", "json")
@@ -33,7 +37,9 @@ class PhotoInterceptor: Interceptor {
             .url(newUrl)
             .build()
 
-        //return an answer from the server
+        /**
+         * receiving an answer from the server
+         */
         return chain.proceed(newRequest)
     }
 }
