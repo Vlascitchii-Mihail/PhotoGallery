@@ -15,7 +15,6 @@ class MainActivity : AppCompatActivity() {
 
         /**
          * Intent for Pending intent in the notification
-         * hello
          */
         fun newIntent(context: Context): Intent {
             return Intent(context, MainActivity::class.java)
